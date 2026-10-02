@@ -16,6 +16,9 @@ use App\Models\Gallery;
 use App\Models\Testimonial;
 use App\Models\Community;
 use App\Models\Setting;
+use App\Models\MeetingNotice;
+use App\Models\MonthlyRealization;
+use App\Models\Page;
 
 use App\Http\Resources\HeroSlideResource;
 use App\Http\Resources\NewsResource;
@@ -24,12 +27,14 @@ use App\Http\Resources\ProgramResource;
 use App\Http\Resources\TeamMemberResource;
 use App\Http\Resources\GalleryResource;
 use App\Http\Resources\TestimonialResource;
+use App\Http\Resources\MeetingNoticeResource;
+use App\Http\Resources\MonthlyRealizationResource;
 
 class BootstrapController extends Controller
 {
     public function show(Request $request)
     {
-        $payload = Cache::remember('bootstrap:v1', now()->addSeconds(60), function () {
+        $payload = Cache::remember('bootstrap:v2', now()->addSeconds(60), function () {
             $heroSlides = HeroSlideResource::collection(HeroSlide::active()->get());
 
             // Static hero stats for now; can be made dynamic later
@@ -69,6 +74,9 @@ class BootstrapController extends Controller
             $testimonials = TestimonialResource::collection(Testimonial::active()->limit(12)->get());
             $communities = Community::approved()->select(['id','name','lga','description'])->get();
             $settings = Setting::query()->get()->pluck('value', 'key');
+            $meetingNotices = MeetingNoticeResource::collection(MeetingNotice::popup()->orderByDesc('priority')->orderBy('starts_at')->limit(5)->get());
+            $monthlyRealizations = MonthlyRealizationResource::collection(MonthlyRealization::latestFeatured()->limit(6)->get());
+            $historyPage = Page::where('slug', 'ilorin-history')->first();
 
             return [
                 'heroSlides' => $heroSlides,
@@ -82,6 +90,14 @@ class BootstrapController extends Controller
                 'testimonials' => $testimonials,
                 'communities' => $communities,
                 'settings' => $settings,
+                'meetingNotices' => $meetingNotices,
+                'monthlyRealizations' => $monthlyRealizations,
+                'history' => $historyPage ? [
+                    'slug' => $historyPage->slug,
+                    'title' => $historyPage->title,
+                    'content' => $historyPage->content,
+                    'metadata' => $historyPage->metadata ?? [],
+                ] : null,
             ];
         });
 

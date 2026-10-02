@@ -36,7 +36,9 @@ class PageController extends Controller
             'vision' => 'nullable|string',
             'values' => 'nullable|string',
             'history' => 'nullable|string',
+            'metadata' => 'nullable|json',
         ]);
+        $validated['metadata'] = isset($validated['metadata']) ? json_decode($validated['metadata'], true) : null;
         $page->update($validated);
         return redirect()->route('admin.pages.index')->with('success', 'Page updated successfully.');
     }

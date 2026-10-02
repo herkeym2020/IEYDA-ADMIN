@@ -13,5 +13,14 @@ class Page extends Model
         'slug',
         'title',
         'content',
+        'mission',
+        'vision',
+        'values',
+        'history',
+        'metadata',
+    ];
+
+    protected $casts = [
+        'metadata' => 'array',
     ];
 }

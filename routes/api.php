@@ -99,6 +99,16 @@ Route::prefix('v1')->group(function () {
         );
     });
 
+    Route::get('/communities', function () {
+        return \App\Http\Resources\CommunityResource::collection(
+            \App\Models\Community::approved()->get()
+        );
+    });
+
+    Route::get('/meeting-notices', [\App\Http\Controllers\Api\FeatureContentController::class, 'notices']);
+    Route::get('/monthly-realizations', [\App\Http\Controllers\Api\FeatureContentController::class, 'realizations']);
+    Route::get('/history/ilorin', [\App\Http\Controllers\Api\FeatureContentController::class, 'history']);
+
     Route::get('/settings', function () {
         return \App\Models\Setting::all()->pluck('value', 'key');
     });

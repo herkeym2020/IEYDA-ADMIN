@@ -22,6 +22,14 @@
         <textarea class="form-control @error('content') is-invalid @enderror" id="content" name="content" rows="10">{{ old('content', $page->content) }}</textarea>
         @error('content')<div class="invalid-feedback">{{ $message }}</div>@enderror
       </div>
+      @if($page->slug === 'ilorin-history')
+      <div class="mb-3">
+        <label for="metadata" class="form-label">Timeline metadata (JSON)</label>
+        <textarea class="form-control @error('metadata') is-invalid @enderror" id="metadata" name="metadata" rows="18">{{ old('metadata', $page->metadata ? json_encode($page->metadata, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE) : '') }}</textarea>
+        <small class="form-text text-muted">Use the supplied seed structure: eyebrow, intro, stats, and timeline.</small>
+        @error('metadata')<div class="invalid-feedback">{{ $message }}</div>@enderror
+      </div>
+      @endif
       <div class="d-flex gap-2">
         <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> Update Page</button>
         <a href="{{ route('admin.pages.index') }}" class="btn btn-secondary"><i class="bi bi-x-circle"></i> Cancel</a>

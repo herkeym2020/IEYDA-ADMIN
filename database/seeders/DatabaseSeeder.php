@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             SettingSeeder::class,
             PageSeeder::class,
             CommunitySeeder::class,
+            FeatureContentSeeder::class,
         ]);
     }
 }

@@ -90,6 +90,9 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Testimonials
     Route::resource('testimonials', Admin\TestimonialController::class);
     Route::post('testimonials/bulk-delete', [Admin\TestimonialController::class, 'bulkDelete'])->name('testimonials.bulkDelete');
+
+    Route::resource('meeting-notices', Admin\MeetingNoticeController::class)->except(['show']);
+    Route::resource('monthly-realizations', Admin\MonthlyRealizationController::class)->except(['show']);
     
     // Settings
     Route::get('/settings', [Admin\SettingController::class, 'index'])->name('settings.index');
@@ -249,6 +252,18 @@ Route::get('/{any?}', function () {
         'communities' => \App\Http\Resources\CommunityResource::collection(
             \App\Models\Community::approved()->get()
         )->resolve(),
+        'meeting-notices' => \App\Http\Resources\MeetingNoticeResource::collection(
+            \App\Models\MeetingNotice::popup()->orderByDesc('priority')->orderBy('starts_at')->limit(5)->get()
+        )->resolve(),
+        'monthly-realizations' => \App\Http\Resources\MonthlyRealizationResource::collection(
+            \App\Models\MonthlyRealization::latestFeatured()->limit(6)->get()
+        )->resolve(),
+        'history' => ($historyPage = \App\Models\Page::where('slug', 'ilorin-history')->first()) ? [
+            'slug' => $historyPage->slug,
+            'title' => $historyPage->title,
+            'content' => $historyPage->content,
+            'metadata' => $historyPage->metadata ?? [],
+        ] : null,
         'settings' => $settings,
     ];
 
