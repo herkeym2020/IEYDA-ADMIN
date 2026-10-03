@@ -182,28 +182,40 @@ Route::get('/{any?}', function () {
     ])->pluck('value', 'key');
 
     // Build a bootstrap payload with commonly used public data for instant load
+    $stat = fn (string $key, string $default) => Setting::get('stat_'.$key, $default);
+    $siteStats = [
+        'youth_associations' => $stat('youth_associations', '200+'),
+        'youth_population' => $stat('youth_population', '2.3M+'),
+        'active_programs' => $stat('active_programs', '50+'),
+        'lgas_covered' => $stat('lgas_covered', '5'),
+        'years_of_service' => $stat('years_of_service', '11'),
+        'youth_empowered' => $stat('youth_empowered', '0'),
+        'communities_reached' => $stat('communities_reached', '0'),
+        'scholarships_awarded' => $stat('scholarships_awarded', '0'),
+        'impact_generated' => $stat('impact_generated', '₦0+'),
+    ];
     $heroStats = [
         [
             'icon' => 'Users',
-            'number' => '200+',
+            'number' => $siteStats['youth_associations'],
             'label' => 'Youth Associations',
             'description' => 'Registered community organizations',
         ],
         [
             'icon' => 'Target',
-            'number' => '2.3M+',
+            'number' => $siteStats['youth_population'],
             'label' => 'Youth Population',
             'description' => '65.5% of Ilorin Emirate population',
         ],
         [
             'icon' => 'Award',
-            'number' => '50+',
+            'number' => $siteStats['active_programs'],
             'label' => 'Active Programs',
             'description' => 'Ongoing community initiatives',
         ],
         [
             'icon' => 'MapPin',
-            'number' => '5',
+            'number' => $siteStats['lgas_covered'],
             'label' => 'LGAs Covered',
             'description' => 'Local Government Areas served',
         ],
@@ -212,45 +224,46 @@ Route::get('/{any?}', function () {
     // Use resource transformers for consistent shape
     // Build bootstrap with safe fallbacks if columns not yet present
     try {
-        $news = \App\Models\News::published()->get();
+        $news = \App\Models\News::published()->limit(8)->get();
     } catch (QueryException $e) {
-        $news = \App\Models\News::where('is_published', 1)->orderByDesc('published_at')->get();
+        $news = \App\Models\News::where('is_published', 1)->orderByDesc('published_at')->limit(8)->get();
     }
     try {
-        $eventsUpcoming = \App\Models\Event::upcoming()->get();
-        $eventsPast = \App\Models\Event::past()->get();
+        $eventsUpcoming = \App\Models\Event::upcoming()->limit(8)->get();
+        $eventsPast = \App\Models\Event::past()->limit(8)->get();
     } catch (QueryException $e) {
         $eventsUpcoming = \App\Models\Event::where(function($q){
             $q->whereNull('date')->orWhere('date', '>=', now());
-        })->orderBy('date')->get();
-        $eventsPast = \App\Models\Event::where('date', '<', now())->orderByDesc('date')->get();
+        })->orderBy('date')->limit(8)->get();
+        $eventsPast = \App\Models\Event::where('date', '<', now())->orderByDesc('date')->limit(8)->get();
     }
     try {
-        $programs = \App\Models\Program::active()->get();
+        $programs = \App\Models\Program::active()->limit(12)->get();
     } catch (QueryException $e) {
-        $programs = \App\Models\Program::where('status', 'active')->get();
+        $programs = \App\Models\Program::where('status', 'active')->limit(12)->get();
     }
 
     $bootstrap = [
         'hero-slides' => \App\Http\Resources\HeroSlideResource::collection(
-            \App\Models\HeroSlide::active()->get()
+            \App\Models\HeroSlide::active()->limit(8)->get()
         )->resolve(),
         'hero-stats' => $heroStats,
-        'news' => \App\Http\Resources\NewsResource::collection($news)->resolve(),
+        'site-stats' => $siteStats,
+        'news' => \App\Http\Resources\NewsResource::collection($news->take(8))->resolve(),
         'events' => \App\Http\Resources\EventResource::collection($eventsUpcoming)->resolve(),
         'past-events' => \App\Http\Resources\EventResource::collection($eventsPast)->resolve(),
-        'programs' => \App\Http\Resources\ProgramResource::collection($programs)->resolve(),
+        'programs' => \App\Http\Resources\ProgramResource::collection($programs->take(12))->resolve(),
         'team' => \App\Http\Resources\TeamMemberResource::collection(
-            \App\Models\TeamMember::active()->get()
+            \App\Models\TeamMember::active()->limit(40)->get()
         )->resolve(),
         'gallery' => \App\Http\Resources\GalleryResource::collection(
-            \App\Models\Gallery::active()->get()
+            \App\Models\Gallery::active()->limit(20)->get()
         )->resolve(),
         'testimonials' => \App\Http\Resources\TestimonialResource::collection(
-            \App\Models\Testimonial::active()->get()
+            \App\Models\Testimonial::active()->limit(12)->get()
         )->resolve(),
         'communities' => \App\Http\Resources\CommunityResource::collection(
-            \App\Models\Community::approved()->get()
+            \App\Models\Community::approved()->limit(250)->get()
         )->resolve(),
         'meeting-notices' => \App\Http\Resources\MeetingNoticeResource::collection(
             \App\Models\MeetingNotice::popup()->orderByDesc('priority')->orderBy('starts_at')->limit(5)->get()

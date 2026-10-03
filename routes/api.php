@@ -14,28 +14,29 @@ Route::prefix('v1')->group(function () {
 
     // Hero stats for homepage hero section
     Route::get('/hero-stats', function () {
+        $stat = fn (string $key, string $default) => \App\Models\Setting::get('stat_'.$key, $default);
         return [
             [
                 'icon' => 'Users',
-                'number' => '200+',
+                'number' => $stat('youth_associations', '200+'),
                 'label' => 'Youth Associations',
                 'description' => 'Registered community organizations',
             ],
             [
                 'icon' => 'Target',
-                'number' => '2.3M+',
+                'number' => $stat('youth_population', '2.3M+'),
                 'label' => 'Youth Population',
                 'description' => '65.5% of Ilorin Emirate population',
             ],
             [
                 'icon' => 'Award',
-                'number' => '50+',
+                'number' => $stat('active_programs', '50+'),
                 'label' => 'Active Programs',
                 'description' => 'Ongoing community initiatives',
             ],
             [
                 'icon' => 'MapPin',
-                'number' => '5',
+                'number' => $stat('lgas_covered', '5'),
                 'label' => 'LGAs Covered',
                 'description' => 'Local Government Areas served',
             ],

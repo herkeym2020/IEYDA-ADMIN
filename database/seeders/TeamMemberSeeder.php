@@ -42,6 +42,7 @@ class TeamMemberSeeder extends Seeder
                 'executive_type' => 'present',
                 'term' => '2024-2026',
                 'department' => 'Executive',
+                'priority' => 1,
                 'bio' => 'A visionary leader committed to youth empowerment and community development across the Ilorin Emirate.',
                 'image' => 'team-member-3.jpg',
                 'location' => 'Ilorin, Kwara State',
@@ -56,6 +57,7 @@ class TeamMemberSeeder extends Seeder
                 'executive_type' => 'pioneering',
                 'term' => '2010-2012',
                 'department' => 'Executive',
+                'priority' => 2,
                 'bio' => 'Dedicated to supporting youth initiatives and sustainable community programs.',
                 'image' => 'team-member-4.jpg',
                 'location' => 'Ilorin, Kwara State',
@@ -76,8 +78,8 @@ class TeamMemberSeeder extends Seeder
             ],
         ];
 
-        foreach ($members as $index => $member) {
-            TeamMember::create(array_merge([
+        foreach ($members as $member) {
+            $attributes = array_merge([
                 'email' => strtolower(str_replace(' ', '.', $member['name'])) . '@ieyda.org',
                 'phone' => '+234 803 xxx xxxx',
                 'social_links' => [
@@ -86,7 +88,12 @@ class TeamMemberSeeder extends Seeder
                     ['platform' => 'linkedin', 'url' => '#'],
                 ],
                 'is_active' => true,
-            ], $member));
+            ], $member);
+
+            TeamMember::updateOrCreate(
+                ['type' => $member['type'], 'name' => $member['name']],
+                $attributes
+            );
         }
     }
 }
