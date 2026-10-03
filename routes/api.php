@@ -110,14 +110,18 @@ Route::prefix('v1')->group(function () {
     Route::get('/history/ilorin', [\App\Http\Controllers\Api\FeatureContentController::class, 'history']);
 
     Route::get('/settings', function () {
-        return \App\Models\Setting::all()->pluck('value', 'key');
+        return \App\Models\Setting::whereIn('key', [
+            'site_name', 'site_description', 'contact_email', 'contact_phone',
+            'logo_url', 'facebook_url', 'twitter_url', 'instagram_url',
+            'whatsapp_url', 'address', 'office_hours',
+        ])->pluck('value', 'key');
     });
 
     // Contact form endpoint
-    Route::post('/contact', [\App\Http\Controllers\Api\ContactController::class, 'send']);
+    Route::post('/contact', [\App\Http\Controllers\Api\ContactController::class, 'send'])->middleware('throttle:5,1');
 
     // Qur'an Competition registration
-    Route::post('/quran-competition/register', [\App\Http\Controllers\Api\QuranCompetitionController::class, 'register']);
+    Route::post('/quran-competition/register', [\App\Http\Controllers\Api\QuranCompetitionController::class, 'register'])->middleware('throttle:5,10');
 
     // Guest Registration for Qur'an Championship (e-invitation)
     Route::post('/guest-registration/register', [\App\Http\Controllers\Api\GuestRegistrationController::class, 'store'])->middleware('throttle:10,1');
@@ -127,15 +131,15 @@ Route::prefix('v1')->group(function () {
     Route::get('/quran-competition/stats', [\App\Http\Controllers\Api\QuranCompetitionController::class, 'stats']);
 
     // Financial Member lead intake (Google Form webhook)
-    Route::post('/financial-member/submit', [\App\Http\Controllers\Api\FinancialMemberLeadController::class, 'store']);
+    Route::post('/financial-member/submit', [\App\Http\Controllers\Api\FinancialMemberLeadController::class, 'store'])->middleware('throttle:10,1');
     
     // Debug route to verify API is working
     Route::get('/debug', function () {
-        return response()->json(['message' => 'API is working', 'env' => config('app.env'), 'url' => config('app.url')]);
+        return response()->json(['message' => 'API is working']);
     });
 
     // Donations
-    Route::post('/donations/initiate', [\App\Http\Controllers\Api\DonationController::class, 'initiate']);
+    Route::post('/donations/initiate', [\App\Http\Controllers\Api\DonationController::class, 'initiate'])->middleware('throttle:10,1');
     Route::get('/donations/paystack-callback', [\App\Http\Controllers\Api\DonationController::class, 'paystackCallback'])->name('api.donations.paystack-callback');
     Route::post('/donations/paystack-webhook', [\App\Http\Controllers\Api\DonationController::class, 'paystackWebhook'])->name('api.donations.paystack-webhook');
 
@@ -143,9 +147,11 @@ Route::prefix('v1')->group(function () {
     Route::get('/facebook/webhook', [\App\Http\Controllers\Api\FacebookWebhookController::class, 'verify'])->withoutMiddleware('api');
     Route::post('/facebook/webhook', [\App\Http\Controllers\Api\FacebookWebhookController::class, 'webhook'])->withoutMiddleware('api');
 
-    Route::get('/communities/all', [\App\Http\Controllers\Api\CommunityController::class, 'all']); // admin: all
-    Route::post('/communities', [\App\Http\Controllers\Api\CommunityController::class, 'store']); // register new
-    Route::post('/communities/{community}/approve', [\App\Http\Controllers\Api\CommunityController::class, 'approve']); // approve
-    Route::post('/communities/{community}/decline', [\App\Http\Controllers\Api\CommunityController::class, 'decline']); // decline
-    Route::delete('/communities/{community}', [\App\Http\Controllers\Api\CommunityController::class, 'destroy']);
+    Route::get('/communities/all', [\App\Http\Controllers\Api\CommunityController::class, 'all'])->middleware('auth:sanctum'); // admin: all
+    Route::post('/communities', [\App\Http\Controllers\Api\CommunityController::class, 'store'])->middleware('throttle:5,10'); // register new
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/communities/{community}/approve', [\App\Http\Controllers\Api\CommunityController::class, 'approve']); // approve
+        Route::post('/communities/{community}/decline', [\App\Http\Controllers\Api\CommunityController::class, 'decline']); // decline
+        Route::delete('/communities/{community}', [\App\Http\Controllers\Api\CommunityController::class, 'destroy']);
+    });
 });

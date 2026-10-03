@@ -39,7 +39,10 @@ class TeamMember extends Model
 
     public function scopeActive($query)
     {
-        return $query->where('is_active', true)->orderBy('order');
+        return $query->where('is_active', true)
+            ->orderBy('order')
+            ->orderBy('priority')
+            ->orderBy('name');
     }
 
     public function scopeByRole($query, $role)
