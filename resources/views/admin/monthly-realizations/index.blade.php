@@ -1,8 +1,8 @@
 @extends('admin.layouts.app')
-@section('page-title', 'Monthly Realizations')
-@section('page-subtitle', 'Recognize the community development realization of each month')
+@section('page-title', 'Community of the Month')
+@section('page-subtitle', 'Recognize the Community of the Month for service and measurable development impact')
 @section('content')
-<div class="modern-card"><div class="modern-card-header"><h3><i class="fas fa-star"></i> Community Realizations</h3><a href="{{ route('admin.monthly-realizations.create') }}" class="btn btn-modern btn-modern-primary"><i class="fas fa-plus"></i> Add Realization</a></div><div class="modern-card-body table-responsive"><table class="modern-table"><thead><tr><th>Month</th><th>Recognition</th><th>Community</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+<div class="modern-card"><div class="modern-card-header"><h3><i class="fas fa-star"></i> Community of the Month</h3><a href="{{ route('admin.monthly-realizations.create') }}" class="btn btn-modern btn-modern-primary"><i class="fas fa-plus"></i> Add Recognition</a></div><div class="modern-card-body table-responsive"><table class="modern-table"><thead><tr><th>Month</th><th>Recognition</th><th>Community</th><th>Status</th><th>Actions</th></tr></thead><tbody>
 @forelse($realizations as $item)<tr><td>{{ $item->month?->format('F Y') }}</td><td><strong>{{ $item->title }}</strong><br><small>{{ $item->impact_metric }}</small></td><td>{{ $item->community_name }}<br><small>{{ $item->lga }}</small></td><td>@if($item->is_active)<span class="badge-modern badge-modern-success">Active</span>@else<span class="badge-modern badge-modern-secondary">Off</span>@endif</td><td><a href="{{ route('admin.monthly-realizations.edit', $item) }}" class="btn btn-sm btn-modern-secondary"><i class="fas fa-edit"></i></a><form action="{{ route('admin.monthly-realizations.destroy', $item) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this realization?')">@csrf @method('DELETE')<button class="btn btn-sm btn-modern-danger"><i class="fas fa-trash"></i></button></form></td></tr>@empty<tr><td colspan="5" class="text-center py-5">No monthly realizations yet.</td></tr>@endforelse
 </tbody></table>{{ $realizations->links() }}</div></div>
 @endsection
