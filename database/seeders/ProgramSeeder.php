@@ -64,6 +64,8 @@ class ProgramSeeder extends Seeder
                     'order' => $index + 1,
                     'status' => 'active',
                     'is_active' => true,
+                    'publish_status' => 'published',
+                    'published_at' => now(),
                 ]
             );
         }

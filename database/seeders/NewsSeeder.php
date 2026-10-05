@@ -41,6 +41,7 @@ class NewsSeeder extends Seeder
                     'author' => 'IEYDA Admin',
                     'read_time' => '3 min read',
                     'published_at' => now()->subDays(rand(1, 30)),
+                    'publish_status' => 'published',
                     'is_featured' => rand(0, 1),
                     'is_published' => true,
                 ]

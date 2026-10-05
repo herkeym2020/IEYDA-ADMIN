@@ -321,6 +321,8 @@ class EventSeeder extends Seeder
                     'slug' => $slug,
                     'image' => 'event-' . rand(1, 4) . '.jpg',
                     'registration_link' => null,
+                    'publish_status' => 'published',
+                    'published_at' => now(),
                 ])
             );
         }
