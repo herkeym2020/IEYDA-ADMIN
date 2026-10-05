@@ -22,6 +22,7 @@ class TeamMemberResource extends JsonResource
             'level' => $this->level,
             'social_links' => $this->social_links,
             'order' => $this->order,
+            'priority' => $this->priority,
             'is_active' => (bool) $this->is_active,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

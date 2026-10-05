@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class Setting extends Model
 {
@@ -15,6 +16,12 @@ class Setting extends Model
         'type',
         'group',
     ];
+
+    protected static function booted(): void
+    {
+        static::saved(fn () => Cache::forget('bootstrap:v3'));
+        static::deleted(fn () => Cache::forget('bootstrap:v3'));
+    }
 
     public static function get($key, $default = null)
     {

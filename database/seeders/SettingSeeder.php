@@ -34,6 +34,17 @@ class SettingSeeder extends Seeder
             ['key' => 'twitter_url', 'value' => 'https://twitter.com/ieyda', 'group' => 'social'],
             ['key' => 'instagram_url', 'value' => 'https://www.instagram.com/ieyda', 'group' => 'social'],
             ['key' => 'linkedin_url', 'value' => 'https://www.linkedin.com/company/ieyda', 'group' => 'social'],
+
+            // Public impact statistics, editable from Admin > Settings
+            ['key' => 'stat_youth_associations', 'value' => '200+', 'group' => 'public_stats'],
+            ['key' => 'stat_youth_population', 'value' => '2.3M+', 'group' => 'public_stats'],
+            ['key' => 'stat_active_programs', 'value' => '50+', 'group' => 'public_stats'],
+            ['key' => 'stat_lgas_covered', 'value' => '5', 'group' => 'public_stats'],
+            ['key' => 'stat_years_of_service', 'value' => '11', 'group' => 'public_stats'],
+            ['key' => 'stat_youth_empowered', 'value' => '0', 'group' => 'public_stats'],
+            ['key' => 'stat_communities_reached', 'value' => '0', 'group' => 'public_stats'],
+            ['key' => 'stat_scholarships_awarded', 'value' => '0', 'group' => 'public_stats'],
+            ['key' => 'stat_impact_generated', 'value' => '₦0+', 'group' => 'public_stats'],
         ];
 
         foreach ($settings as $setting) {
