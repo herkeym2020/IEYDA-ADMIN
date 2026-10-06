@@ -11,7 +11,7 @@
     @if($page->slug === 'ilorin-history')<span class="badge badge-success">Public page connected</span>@endif
   </div>
   <div class="card-body">
-    <form action="{{ route('admin.pages.update', $page->slug) }}" method="POST" id="page-editor-form">
+    <form action="{{ route('admin.pages.update', $page->slug) }}" method="POST" enctype="multipart/form-data" id="page-editor-form">
       @csrf
       @method('PUT')
       <div class="mb-3">
@@ -73,6 +73,7 @@
   .history-editor-item { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: .5rem; padding: 1rem; margin-bottom: .75rem; }
   .history-editor-item .remove-item { color: #b42318; }
   .history-editor-empty { color: #6b7280; padding: .75rem 0; }
+  .history-editor-preview { width: 76px; height: 54px; object-fit: cover; border-radius: .35rem; border: 1px solid #d1d5db; margin-top: .5rem; }
 </style>
 @endpush
 @push('scripts')
@@ -82,13 +83,14 @@
   const lists = { stat: 'stats-list', gallery: 'gallery-list', timeline: 'timeline-list', person: 'people-list', source: 'sources-list' };
   const esc = (value = '') => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
   const input = (label, key, value, type = 'text', wide = false) => `<div class="${wide ? 'col-12' : 'col-md-6'}"><label class="form-label">${label}</label><${type === 'textarea' ? 'textarea' : 'input'} class="form-control" data-field="${key}" ${type !== 'textarea' ? `type="${type}"` : ''}>${type === 'textarea' ? esc(value) : ''}</${type === 'textarea' ? 'textarea' : 'input'}></div>`;
+  const imageField = (label, key, value, uploadKey) => `<div class="col-12"><label class="form-label">${label}</label><div class="input-group"><input class="form-control" data-field="${key}" value="${esc(value || '')}" placeholder="/storage/history/example.jpg"><label class="input-group-text">Upload<input class="d-none" type="file" accept="image/jpeg,image/png,image/webp" data-upload="${uploadKey}"></label></div>${value ? `<img class="history-editor-preview" src="${esc(value)}" alt="Current image preview">` : ''}<small class="form-text text-muted">Upload a new image to replace the current one, or keep the existing path.</small></div>`;
   const render = (kind, item = {}) => {
     const wrap = document.createElement('div'); wrap.className = 'history-editor-item'; wrap.dataset.kind = kind;
     let fields = '';
     if (kind === 'stat') fields = `<div class="row">${input('Label', 'label', item.label)}${input('Value', 'value', item.value)}</div>`;
-    if (kind === 'gallery') fields = `<div class="row">${input('Image URL or public path', 'image', item.image, 'text', true)}${input('Caption', 'caption', item.caption)}${input('Alt text', 'alt', item.alt)}</div>`;
-    if (kind === 'timeline') fields = `<div class="row">${input('Year / period', 'year', item.year)}${input('Title', 'title', item.title)}${input('Description', 'description', item.description, 'textarea', true)}${input('Image URL or public path', 'image', item.image, 'text', true)}</div>`;
-    if (kind === 'person') fields = `<div class="row">${input('Name', 'name', item.name)}${input('Role', 'role', item.role)}${input('Description', 'description', item.description, 'textarea', true)}${input('Portrait URL or public path', 'image', item.image, 'text', true)}</div>`;
+    if (kind === 'gallery') fields = `<div class="row">${imageField('Gallery image', 'image', item.image, 'gallery')}${input('Caption', 'caption', item.caption)}${input('Alt text', 'alt', item.alt)}</div>`;
+    if (kind === 'timeline') fields = `<div class="row">${input('Year / period', 'year', item.year)}${input('Title', 'title', item.title)}${input('Description', 'description', item.description, 'textarea', true)}${imageField('Milestone image', 'image', item.image, 'timeline')}</div>`;
+    if (kind === 'person') fields = `<div class="row">${input('Name', 'name', item.name)}${input('Role', 'role', item.role)}${input('Description', 'description', item.description, 'textarea', true)}${imageField('Portrait image', 'image', item.image, 'person')}</div>`;
     if (kind === 'source') fields = `<div class="row">${input('Label', 'label', item.label)}${input('URL', 'url', item.url)}</div>`;
     wrap.innerHTML = `${fields}<div class="text-end mt-2"><button type="button" class="btn btn-sm btn-link remove-item">Remove</button></div>`;
     wrap.querySelector('.remove-item').addEventListener('click', () => wrap.remove());
@@ -106,7 +108,10 @@
     const metadata = { eyebrow: document.querySelector('[data-meta="eyebrow"]').value, intro: document.querySelector('[data-meta="intro"]').value };
     const keys = { stat: 'stats', gallery: 'gallery', timeline: 'timeline', person: 'people', source: 'sources' };
     Object.entries(lists).forEach(([kind, id]) => {
-      metadata[keys[kind]] = [...document.querySelectorAll(`#${id} [data-kind="${kind}"]`)].map((row) => Object.fromEntries([...row.querySelectorAll('[data-field]')].map((field) => [field.dataset.field, field.value.trim()])));
+      metadata[keys[kind]] = [...document.querySelectorAll(`#${id} [data-kind="${kind}"]`)].map((row, index) => {
+        row.querySelectorAll('[data-upload]').forEach((file) => { file.name = `${file.dataset.upload}_images[${index}]`; });
+        return Object.fromEntries([...row.querySelectorAll('[data-field]')].map((field) => [field.dataset.field, field.value.trim()]));
+      });
     });
     document.getElementById('metadata').value = JSON.stringify(metadata);
   });
