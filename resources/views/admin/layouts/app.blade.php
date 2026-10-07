@@ -576,6 +576,12 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="{{ route('admin.meeting-notices.index') }}" class="nav-link {{ request()->routeIs('admin.meeting-notices.*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-bullhorn"></i>
+                                <p>Meeting Notices</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="{{ route('admin.programs.index') }}" class="nav-link {{ request()->routeIs('admin.programs.*') ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-graduation-cap"></i>
                                 <p>Programs</p>
@@ -627,6 +633,12 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    <a href="{{ route('admin.pages.edit', 'ilorin-history') }}" class="nav-link {{ request()->routeIs('admin.pages.edit') && request()->route('slug') === 'ilorin-history' ? 'active' : '' }}">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Ilorin History</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a href="{{ route('admin.pages.edit', 'contact') }}" class="nav-link {{ request()->routeIs('admin.pages.edit') && request()->route('slug') === 'contact' ? 'active' : '' }}">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Contact Page</p>
@@ -659,6 +671,12 @@
                             <a href="{{ route('admin.communities.index') }}" class="nav-link {{ request()->routeIs('admin.communities.*') ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-network-wired"></i>
                                 <p>Communities</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.monthly-realizations.index') }}" class="nav-link {{ request()->routeIs('admin.monthly-realizations.*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-star"></i>
+                                <p>Monthly Realizations</p>
                             </a>
                         </li>
 
