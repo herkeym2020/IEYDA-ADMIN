@@ -1,0 +1,66 @@
+name: Deploy backend to production
+
+# Deploys the Laravel app to Namecheap shared hosting over SSH/rsync, then runs
+# composer install, migrations, idempotent seeders and cache rebuilds.
+# Follows DEPLOYMENT_RUNBOOK.md (never runs migrate:fresh).
+# Requires (repo Settings → Secrets and variables → Actions):
+#   Secrets: SSH_HOST, SSH_USERNAME, SSH_PRIVATE_KEY
+#   Vars:    BACKEND_DEPLOY_PATH (e.g. /home/cpaneluser/ieyda-api), SSH_PORT (default 22)
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-backend-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      SSH_PORT: ${{ vars.SSH_PORT || 22 }}
+      BACKEND_PATH: ${{ vars.BACKEND_DEPLOY_PATH }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare SSH key
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "$SSH_PORT" "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+      # Never uploads .env, vendor/, storage/ or bootstrap/cache/ — the server keeps its own.
+      - name: Sync application code
+        run: |
+          rsync -az --info=stats2 \
+            --exclude '.git' \
+            --exclude '.env' \
+            --exclude 'vendor/' \
+            --exclude 'node_modules/' \
+            --exclude 'storage/' \
+            --exclude 'bootstrap/cache/' \
+            --exclude '.github/' \
+            -e "ssh -p $SSH_PORT -i ~/.ssh/deploy_key -o IdentitiesOnly=yes" \
+            ./ "${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:$BACKEND_PATH/"
+
+      - name: Install dependencies, migrate, seed, cache
+        run: |
+          ssh -p $SSH_PORT -i ~/.ssh/deploy_key -o IdentitiesOnly=yes "${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}" \
+            "set -e
+             cd $BACKEND_PATH
+             export COMPOSER_MEMORY_LIMIT=-1
+             composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+             php artisan migrate --force
+             php artisan db:seed --class=NewsSeeder --force
+             php artisan db:seed --class=EventSeeder --force
+             php artisan db:seed --class=ProgramSeeder --force
+             php artisan db:seed --class=SettingSeeder --force
+             php artisan db:seed --class=TeamMemberSeeder --force
+             php artisan db:seed --class=FeatureContentSeeder --force
+             php artisan optimize:clear
+             php artisan config:cache
+             php artisan view:cache
+             chmod -R ug+rwx storage bootstrap/cache 2>/dev/null || true"
