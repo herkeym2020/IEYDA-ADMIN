@@ -112,9 +112,12 @@ Route::prefix('v1')->group(function () {
 
     Route::get('/settings', function () {
         return \App\Models\Setting::whereIn('key', [
-            'site_name', 'site_description', 'contact_email', 'contact_phone',
-            'logo_url', 'facebook_url', 'twitter_url', 'instagram_url',
-            'whatsapp_url', 'address', 'office_hours',
+            'site_name', 'site_description', 'contact_email', 'contact_phone', 'contact_address',
+            'logo_url', 'facebook_url', 'twitter_url', 'instagram_url', 'linkedin_url',
+            'whatsapp_url', 'address', 'office_hours', 'office_address',
+            'office_hours_weekdays', 'office_hours_saturday', 'office_hours_sunday',
+            'phone_president', 'phone_secretary', 'phone_general',
+            'email_general', 'email_president', 'email_secretary', 'departments',
         ])->pluck('value', 'key');
     });
 

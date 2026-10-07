@@ -31,9 +31,12 @@ class BootstrapController extends Controller
     private const CACHE_KEY = 'bootstrap:v3';
 
     private const PUBLIC_SETTING_KEYS = [
-        'site_name', 'site_description', 'contact_email', 'contact_phone',
+        'site_name', 'site_description', 'contact_email', 'contact_phone', 'contact_address',
         'logo_url', 'facebook_url', 'twitter_url', 'instagram_url',
-        'whatsapp_url', 'address', 'office_hours',
+        'linkedin_url', 'whatsapp_url', 'address', 'office_hours', 'office_address',
+        'office_hours_weekdays', 'office_hours_saturday', 'office_hours_sunday',
+        'phone_president', 'phone_secretary', 'phone_general',
+        'email_general', 'email_president', 'email_secretary', 'departments',
     ];
 
     private const STAT_DEFAULTS = [
