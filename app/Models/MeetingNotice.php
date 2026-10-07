@@ -24,7 +24,7 @@ class MeetingNotice extends Model
 
     public function scopeVisible(Builder $query): Builder
     {
-        return $query->where('is_active', true)->where('starts_at', '>=', now()->subDay());
+        return $query->where('is_active', true)->where('starts_at', '>', now());
     }
 
     public function scopePopup(Builder $query): Builder
